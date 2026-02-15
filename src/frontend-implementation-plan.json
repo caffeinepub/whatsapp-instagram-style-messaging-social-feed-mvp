@@ -1,0 +1,252 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Messaging + Social Feed MVP (React/Tailwind/React Query + Internet Identity)",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Internet Identity sign-in, login-gated app shell, and onboarding/profile edit flow (display name, unique handle, bio, avatar).",
+      "acceptanceCriteria": [
+        "User can sign in with Internet Identity.",
+        "On first sign-in, a user record is created in the canister keyed by Principal.",
+        "User can set display name and a unique username/handle; uniqueness is enforced by the backend.",
+        "User can view and edit their profile (display name, handle, bio, avatar image URL/path)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "create",
+          "description": "Create the app root component that (1) gates the product UI behind Internet Identity, (2) initializes session/auth state via the actor, and (3) mounts the router + global layout. Use the selected \"authorization\" component guidance to ensure users must be logged in before viewing application data, and clear React Query cache on logout. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/auth/AuthGate.tsx",
+          "operation": "create",
+          "description": "Implement an auth gate wrapper using the immutable hooks (useInternetIdentity, useActor) and React Query to check whether the user is authenticated and whether a caller profile exists (getCallerUserProfile). Show login UI when unauthenticated, and show onboarding when authenticated but missing a profile. Use the selected \"authorization\" component guidance to avoid profile-setup modal flash and to handle authorization failures gracefully. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/auth/LoginButton.tsx",
+          "operation": "create",
+          "description": "Create a reusable login/logout button composed from existing shadcn/ui primitives (do not modify frontend/src/components/ui). On logout, clear React Query cached data to prevent leaking prior-user data. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/onboarding/OnboardingPage.tsx",
+          "operation": "create",
+          "description": "Create the minimal onboarding screen that prompts for display name, unique username/handle, optional bio, and optional avatar (URL or basic avatar input strategy aligned with backend types). Wire the onboarding illustration asset at frontend/public/assets/generated/onboarding-illustration.dim_1200x800.png into the UI. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/profile/ProfilePage.tsx",
+          "operation": "create",
+          "description": "Create the Profile page for viewing and editing the caller's profile fields (display name, handle, bio, avatar) using actor.getCallerUserProfile and actor.saveCallerUserProfile, with loading/error states and validation messaging in English. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/api/profile.ts",
+          "operation": "create",
+          "description": "Add React Query hooks for profile lifecycle: fetch current profile, save profile, and invalidate relevant queries after updates. Ensure hooks depend on useActor and are disabled until the actor is available. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/public/assets/generated/app-logo.dim_512x512.png",
+          "operation": "create",
+          "description": "Add the generated app logo asset as a static file for use in navigation/header and auth/onboarding screens (transparent background)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Social feed UX: Explore/Search users, follow/unfollow, create posts with caption + up to 10 image URLs, and feed timeline rendering.",
+      "acceptanceCriteria": [
+        "Backend exposes methods to: search users by handle/display name, follow/unfollow, list followers/following, create post, list my posts, list feed posts (from followed + self).",
+        "A post includes: author, timestamp, caption text, and array of image URLs (0–10).",
+        "Frontend screens exist for: Explore/Search users, a basic Profile page, Create Post, and Feed.",
+        "Feed shows posts in reverse chronological order and includes author + caption + images."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/feed/FeedPage.tsx",
+          "operation": "create",
+          "description": "Implement the Feed screen using React Query to load actor.getFeed and render posts (author, caption, images) in reverse chronological order. Include loading, error, and empty states; wire empty-feed illustration frontend/public/assets/generated/empty-feed.dim_900x600.png into the empty state UI. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/explore/ExplorePage.tsx",
+          "operation": "create",
+          "description": "Implement Explore/Search screen to search users via actor.searchUsers; show results with basic identity fields and actions to follow/unfollow and start a chat (handoff to REQ-3). Include empty/loading/error states. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/posts/CreatePostPage.tsx",
+          "operation": "create",
+          "description": "Implement Create Post screen with caption input and up to 10 image URL inputs (static asset URLs). Use React Query mutation to call actor.createPost, and navigate back to Feed or show success state within the same route. Include validation and error feedback in English. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/social/PostCard.tsx",
+          "operation": "create",
+          "description": "Create a reusable post card component to display author metadata, timestamp formatting, caption, and an image grid/carousel layout that supports 0–10 image URLs. Compose from existing shadcn/ui primitives (do not modify frontend/src/components/ui). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/api/social.ts",
+          "operation": "create",
+          "description": "Add React Query hooks/mutations for social features: search users, follow/unfollow, create post, and feed query with invalidation (e.g., invalidate feed after create post and follow changes). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/public/assets/generated/empty-feed.dim_900x600.png",
+          "operation": "create",
+          "description": "Add the generated empty-feed illustration asset as a static file for the Feed empty state."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "1:1 messaging UI: conversation list, start conversation from search, chat thread with polling refresh, and message composer with optional image URL.",
+      "acceptanceCriteria": [
+        "Backend supports: create/get 1:1 conversation by participant pair, list my conversations, send message, list messages (paged by timestamp/id).",
+        "Message includes: sender, timestamp, text content, and optional image URL (single).",
+        "Frontend includes: Conversations list, Chat thread view, composer to send text and optional image URL, and a user picker to start a new chat from search results.",
+        "Chat thread refreshes via periodic polling using React Query (e.g., refetchInterval) and does not rely on WebSockets.",
+        "Only conversation participants can read/send messages in that conversation (enforced by backend)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/messages/MessagesPage.tsx",
+          "operation": "create",
+          "description": "Implement the Conversations list screen using React Query to call actor.listConversations, with loading/error/empty states and navigation into a chat thread route. Wire empty-messages illustration frontend/public/assets/generated/empty-messages.dim_900x600.png into the empty state UI. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/messages/ChatThreadPage.tsx",
+          "operation": "create",
+          "description": "Implement the chat thread detail view for a given conversationId. Use React Query to poll actor.getMessages with refetchInterval, render message bubbles, and handle loading/error/empty states. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/messages/MessageComposer.tsx",
+          "operation": "create",
+          "description": "Create a composer component for sending a text message and optional single image URL. Use React Query mutation to call actor.sendMessage and clear input on success, with client-side validation and English error text. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/messages/StartChatButton.tsx",
+          "operation": "create",
+          "description": "Provide a reusable action that starts a new conversation with a selected user via actor.startConversation and routes to the new thread. Intended for use from Explore search results and/or profile views. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/api/messages.ts",
+          "operation": "create",
+          "description": "Add React Query hooks/mutations for messaging: list conversations, get messages (polling support), start conversation, send message, and query invalidation for thread + conversation list updates. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/public/assets/generated/empty-messages.dim_900x600.png",
+          "operation": "create",
+          "description": "Add the generated empty-messages illustration asset as a static file for the Messages empty state."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "MVP navigation + responsive app layout for Feed, Explore, Messages, Profile, Create Post, and Chat thread detail route.",
+      "acceptanceCriteria": [
+        "App has a clear primary navigation (bottom tab on mobile and/or sidebar/top nav on desktop).",
+        "Routes/pages exist for Feed, Explore, Messages, Profile, Create Post, and Chat thread detail.",
+        "Navigation state is preserved during normal use (back/forward works)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/routes/routes.tsx",
+          "operation": "create",
+          "description": "Define and export the route table for Feed, Explore, Messages, Profile, Create Post, and Chat thread detail, using a router that preserves navigation state (back/forward). Ensure chat thread supports a conversationId param. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/layout/AppLayout.tsx",
+          "operation": "create",
+          "description": "Create a responsive shell with consistent header + primary navigation: bottom tab bar on mobile and a sidebar/top navigation on desktop. Include app logo from frontend/public/assets/generated/app-logo.dim_512x512.png in the layout. Compose UI from existing shadcn/ui primitives (do not modify frontend/src/components/ui). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/navigation/PrimaryNav.tsx",
+          "operation": "create",
+          "description": "Implement the primary navigation component with links to Feed, Explore, Messages, Create Post, and Profile; highlight active route and ensure accessible navigation. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Wire the router and AppLayout into the app root so all required pages are reachable and navigation/back-forward works. Ensure routes are wrapped by AuthGate to keep data behind login as required by the selected \"authorization\" guidance. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Apply a coherent modern visual theme across the app (no blue/purple primary) with consistent styling for navigation, cards, inputs, and chat bubbles.",
+      "acceptanceCriteria": [
+        "A single distinct theme is applied consistently (no default mismatched styling).",
+        "All primary UI elements (navigation, headers, cards, buttons, inputs, message bubbles) follow the theme.",
+        "Theme avoids blue/purple as the primary palette unless explicitly requested later."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/index.css",
+          "operation": "create",
+          "description": "Create global Tailwind + theme CSS variables to define a warm/neutral primary palette (avoiding blue/purple), consistent typography, spacing, and surface colors compatible with shadcn/ui variable-based theming. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/theme/theme.ts",
+          "operation": "create",
+          "description": "Add a small theme constants module (e.g., max widths, spacing tokens, message bubble variants) to keep styling consistent across Feed, Explore, Messages, Profile, and Create Post. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/messages/ChatThreadPage.tsx",
+          "operation": "modify",
+          "description": "Apply themed message bubble styling (sender vs receiver), consistent spacing, and readable timestamps using Tailwind classes aligned with the global theme. Compose with existing shadcn/ui where appropriate. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/social/PostCard.tsx",
+          "operation": "modify",
+          "description": "Apply consistent themed card styling, caption typography, and image presentation to match the app-wide visual system. Compose with existing shadcn/ui primitives (do not modify frontend/src/components/ui). Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Add validation plus empty/loading/error states across Feed, Explore, Messages, and Profile (English messages).",
+      "acceptanceCriteria": [
+        "All networked views show loading states and readable error states.",
+        "Empty states exist for: no posts in feed, no conversations, no messages, and no search results.",
+        "Inputs validate: username required/unique, caption length limit, message length limit; user-facing validation text is in English."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/validation/validators.ts",
+          "operation": "create",
+          "description": "Centralize client-side validation helpers and constraints for username/handle required format, caption length limit, and message length limit. Ensure returned validation messages are in English. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/states/LoadingState.tsx",
+          "operation": "create",
+          "description": "Create a consistent loading state component (skeleton/spinner + text) to reuse across pages. Compose from existing shadcn/ui primitives (do not modify frontend/src/components/ui). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/states/ErrorState.tsx",
+          "operation": "create",
+          "description": "Create a reusable error state component that shows readable error text and an optional retry action. Ensure authorization-related errors are surfaced clearly without exposing internals, per the selected \"authorization\" guidance. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/states/EmptyState.tsx",
+          "operation": "create",
+          "description": "Create a reusable empty state component supporting optional illustration + message + CTA, used by Feed, Explore, and Messages. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/onboarding/OnboardingPage.tsx",
+          "operation": "modify",
+          "description": "Add input validation (username required, basic format, display name required) and show clear inline validation text in English; handle backend failures such as non-unique handle with readable error messaging. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/posts/CreatePostPage.tsx",
+          "operation": "modify",
+          "description": "Add caption length validation, enforce max 10 image URLs, and show loading/error states for create post mutation with readable English messages. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/messages/MessageComposer.tsx",
+          "operation": "modify",
+          "description": "Add message length validation and mutation error handling; keep user-facing validation/error text in English. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/explore/ExplorePage.tsx",
+          "operation": "modify",
+          "description": "Add loading/error/empty states (including 'no search results') and basic input validation for search term length. Verify the component's usage instructions before implementing."
+        }
+      ]
+    }
+  ]
+}

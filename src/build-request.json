@@ -1,0 +1,151 @@
+{
+  "kind": "build_request",
+  "title": "WhatsApp/Instagram-style messaging + social feed MVP",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Implement Internet Identity authentication and a minimal onboarding flow: first sign-in creates a user record; prompt for display name, unique username/handle, and optional bio + avatar.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "create a app like whatsapp&instagram(chating app)."
+        ]
+      },
+      "acceptanceCriteria": [
+        "User can sign in with Internet Identity.",
+        "On first sign-in, a user record is created in the canister keyed by Principal.",
+        "User can set display name and a unique username/handle; uniqueness is enforced by the backend.",
+        "User can view and edit their profile (display name, handle, bio, avatar image URL/path)."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Create core data models and canister methods for a simple Instagram-like social layer: user search, follow/unfollow, and a posts feed where users can create posts with a caption and up to 10 images (stored as frontend static asset URLs) and view a timeline feed from followed users.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "create a app like whatsapp&instagram(chating app)."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Backend exposes methods to: search users by handle/display name, follow/unfollow, list followers/following, create post, list my posts, list feed posts (from followed + self).",
+        "A post includes: author, timestamp, caption text, and array of image URLs (0–10).",
+        "Frontend screens exist for: Explore/Search users, a basic Profile page, Create Post, and Feed.",
+        "Feed shows posts in reverse chronological order and includes author + caption + images."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Create a WhatsApp-like 1:1 direct messaging system: start a conversation with another user, list conversations, send messages, and view message history with polling-based refresh (no real-time sockets).",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "create a app like whatsapp&instagram(chating app)."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Backend supports: create/get 1:1 conversation by participant pair, list my conversations, send message, list messages (paged by timestamp/id).",
+        "Message includes: sender, timestamp, text content, and optional image URL (single).",
+        "Frontend includes: Conversations list, Chat thread view, composer to send text and optional image URL, and a user picker to start a new chat from search results.",
+        "Chat thread refreshes via periodic polling using React Query (e.g., refetchInterval) and does not rely on WebSockets.",
+        "Only conversation participants can read/send messages in that conversation (enforced by backend)."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Add navigation and app structure for the MVP with these primary sections: Feed, Explore, Messages, Profile, and Create Post; ensure consistent layout across desktop and mobile widths.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "create a app like whatsapp&instagram(chating app)."
+        ]
+      },
+      "acceptanceCriteria": [
+        "App has a clear primary navigation (bottom tab on mobile and/or sidebar/top nav on desktop).",
+        "Routes/pages exist for Feed, Explore, Messages, Profile, Create Post, and Chat thread detail.",
+        "Navigation state is preserved during normal use (back/forward works)."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Choose and apply a coherent visual theme for the entire UI (colors, typography, spacing, and component styling) suitable for a modern chat + social app; enforce it consistently across all screens.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A single distinct theme is applied consistently (no default mismatched styling).",
+        "All primary UI elements (navigation, headers, cards, buttons, inputs, message bubbles) follow the theme.",
+        "Theme avoids blue/purple as the primary palette unless explicitly requested later."
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Add basic safety/quality features: input validation and empty/loading/error states across Feed, Explore, Messages, and Profile.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ]
+      },
+      "acceptanceCriteria": [
+        "All networked views show loading states and readable error states.",
+        "Empty states exist for: no posts in feed, no conversations, no messages, and no search results.",
+        "Inputs validate: username required/unique, caption length limit, message length limit; user-facing validation text is in English."
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "text": "Ensure stable canister storage for users, follows, posts, conversations, and messages using the Internet Computer canister state patterns appropriate for upgrades (stable storage) within a single Motoko actor.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ]
+      },
+      "acceptanceCriteria": [
+        "All core entities (users, follows, posts, conversations, messages) persist across canister upgrades using stable variables and/or stable-friendly serialization patterns.",
+        "Access control is enforced using caller Principal for sensitive operations (profile edit, follow/unfollow, message send, create post).",
+        "All backend methods return clear error variants/messages for common failures (not signed in, user not found, not authorized, invalid input)."
+      ]
+    }
+  ],
+  "constraints": [
+    "Backend must remain a single Motoko actor (no additional backend services).",
+    "Frontend must be React + TypeScript with Tailwind and React Query.",
+    "Internet Identity is the only supported authentication method.",
+    "No WebSockets/real-time chat; use polling for message updates.",
+    "Do not modify files under frontend immutable paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui (compose instead)."
+  ],
+  "nonGoals": [
+    "Group chats, channels, or broadcast lists.",
+    "Voice/video calls, audio messages, or live streaming.",
+    "End-to-end encryption guarantees.",
+    "Stories/Reels, post comments/likes, or advanced content moderation.",
+    "Push notifications, email/SMS messaging, or any external integrations."
+  ],
+  "imageRequirements": {
+    "required": [
+      "App logo mark, modern minimal chat+camera hybrid glyph on transparent background (app-logo.dim_512x512.png)",
+      "Auth/onboarding illustration, abstract people chatting with warm tones (onboarding-illustration.dim_1200x800.png)",
+      "Empty state illustration for messages, minimal inbox/chat bubbles style (empty-messages.dim_900x600.png)",
+      "Empty state illustration for feed, minimal photo grid/camera style (empty-feed.dim_900x600.png)"
+    ],
+    "edits": []
+  }
+}

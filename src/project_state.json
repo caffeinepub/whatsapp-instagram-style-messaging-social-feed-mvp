@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "Build a chat/messaging social app similar to WhatsApp and Instagram.",
+  "architectural_notes": [],
+  "known_issues": [],
+  "isFixRequest": false,
+  "imageRequirements": "## Required Images\n- App logo mark, modern minimal chat+camera hybrid glyph on transparent background (app-logo.dim_512x512.png)\n- Auth/onboarding illustration, abstract people chatting with warm tones (onboarding-illustration.dim_1200x800.png)\n- Empty state illustration for messages, minimal inbox/chat bubbles style (empty-messages.dim_900x600.png)\n- Empty state illustration for feed, minimal photo grid/camera style (empty-feed.dim_900x600.png)",
+  "existing_features": [
+    {
+      "id": "feature-implement-internet-identity-authentication-and-a-minimal-onboarding-flow-first-sign-in-creates-a-user-record-prompt-for-display-name-unique-username-handle-and-optional-bio-avatar",
+      "title": "Implement Internet Identity authentication and a minimal onboarding flow: first sign-in creates a user record; prompt for display name, unique username/handle, and optional bio + avatar.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-core-data-models-and-canister-methods-for-a-simple-instagram-like-social-layer-user-search-follow-unfollow-and-a-posts-feed-where-users-can-create-posts-with-a-caption-and-up-to-10-images-stored-as-frontend-static-asset-urls-and-view-a-timeline-feed-from-followed-users",
+      "title": "Create core data models and canister methods for a simple Instagram-like social layer: user search, follow/unfollow, and a posts feed where users can create posts with a caption and up to 10 images (stored as frontend static asset URLs) and view a timeline feed from followed users.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-whatsapp-like-1-1-direct-messaging-system-start-a-conversation-with-another-user-list-conversations-send-messages-and-view-message-history-with-polling-based-refresh-no-real-time-sockets",
+      "title": "Create a WhatsApp-like 1:1 direct messaging system: start a conversation with another user, list conversations, send messages, and view message history with polling-based refresh (no real-time sockets).",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-navigation-and-app-structure-for-the-mvp-with-these-primary-sections-feed-explore-messages-profile-and-create-post-ensure-consistent-layout-across-desktop-and-mobile-widths",
+      "title": "Add navigation and app structure for the MVP with these primary sections: Feed, Explore, Messages, Profile, and Create Post; ensure consistent layout across desktop and mobile widths.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-choose-and-apply-a-coherent-visual-theme-for-the-entire-ui-colors-typography-spacing-and-component-styling-suitable-for-a-modern-chat-social-app-enforce-it-consistently-across-all-screens",
+      "title": "Choose and apply a coherent visual theme for the entire UI (colors, typography, spacing, and component styling) suitable for a modern chat + social app; enforce it consistently across all screens.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-basic-safety-quality-features-input-validation-and-empty-loading-error-states-across-feed-explore-messages-and-profile",
+      "title": "Add basic safety/quality features: input validation and empty/loading/error states across Feed, Explore, Messages, and Profile.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Create a WhatsApp/Instagram-like chatting app (messaging + social features).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Ensure stable canister storage for users, follows, posts, conversations, and messages using the Internet Computer canister state patterns appropriate for upgrades (stable storage) within a single Motoko actor.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "WhatsApp/Instagram-style messaging + social feed MVP",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

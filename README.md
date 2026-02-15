@@ -1,2 +1,3 @@
-# whatsapp-instagram-style-messaging-social-feed-mvp
-Exported from Caffeine project: WhatsApp/Instagram-style messaging + social feed MVP
+## WhatsApp/Instagram-style messaging + social feed MVP
+
+To run app build and run docker image: `docker build -t app . docker run -it --network host app`
