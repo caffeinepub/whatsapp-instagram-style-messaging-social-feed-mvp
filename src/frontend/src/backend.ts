@@ -89,6 +89,7 @@ export class ExternalBlob {
         return this;
     }
 }
+export type ConversationId = bigint;
 export type UserId = Principal;
 export interface Post {
     id: bigint;
@@ -108,7 +109,10 @@ export interface Message {
 }
 export type Id = bigint;
 export type Username = string;
-export type ImageAssetUrl = string;
+export interface UserSearchResult {
+    principal: Principal;
+    profile: UserProfile;
+}
 export interface UserProfile {
     bio: string;
     username: Username;
@@ -117,7 +121,7 @@ export interface UserProfile {
     following: Array<UserId>;
     avatar?: Uint8Array;
 }
-export type ConversationId = bigint;
+export type ImageAssetUrl = string;
 export enum UserRole {
     admin = "admin",
     user = "user",
@@ -167,7 +171,7 @@ export interface backendInterface {
     /**
      * / Search for users by username (requires user role)
      */
-    searchUsers(searchTerm: string): Promise<Array<UserProfile>>;
+    searchUsers(searchTerm: string): Promise<Array<UserSearchResult>>;
     /**
      * / Sends a message in a conversation (requires user role and participation)
      */
@@ -185,7 +189,7 @@ export interface backendInterface {
      */
     unfollowUser(userToUnfollow: UserId): Promise<void>;
 }
-import type { UserId as _UserId, UserProfile as _UserProfile, UserRole as _UserRole, Username as _Username } from "./declarations/backend.did.d.ts";
+import type { UserId as _UserId, UserProfile as _UserProfile, UserRole as _UserRole, UserSearchResult as _UserSearchResult, Username as _Username } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async _initializeAccessControlWithSecret(arg0: string): Promise<void> {
@@ -370,7 +374,7 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async searchUsers(arg0: string): Promise<Array<UserProfile>> {
+    async searchUsers(arg0: string): Promise<Array<UserSearchResult>> {
         if (this.processError) {
             try {
                 const result = await this.actor.searchUsers(arg0);
@@ -447,11 +451,26 @@ function from_candid_UserProfile_n4(_uploadFile: (file: ExternalBlob) => Promise
 function from_candid_UserRole_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
     return from_candid_variant_n8(_uploadFile, _downloadFile, value);
 }
+function from_candid_UserSearchResult_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserSearchResult): UserSearchResult {
+    return from_candid_record_n13(_uploadFile, _downloadFile, value);
+}
 function from_candid_opt_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
     return value.length === 0 ? null : from_candid_UserProfile_n4(_uploadFile, _downloadFile, value[0]);
 }
 function from_candid_opt_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [Uint8Array]): Uint8Array | null {
     return value.length === 0 ? null : value[0];
+}
+function from_candid_record_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    principal: Principal;
+    profile: _UserProfile;
+}): {
+    principal: Principal;
+    profile: UserProfile;
+} {
+    return {
+        principal: value.principal,
+        profile: from_candid_UserProfile_n4(_uploadFile, _downloadFile, value.profile)
+    };
 }
 function from_candid_record_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     bio: string;
@@ -486,8 +505,8 @@ function from_candid_variant_n8(_uploadFile: (file: ExternalBlob) => Promise<Uin
 }): UserRole {
     return "admin" in value ? UserRole.admin : "user" in value ? UserRole.user : "guest" in value ? UserRole.guest : value;
 }
-function from_candid_vec_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_UserProfile>): Array<UserProfile> {
-    return value.map((x)=>from_candid_UserProfile_n4(_uploadFile, _downloadFile, x));
+function from_candid_vec_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_UserSearchResult>): Array<UserSearchResult> {
+    return value.map((x)=>from_candid_UserSearchResult_n12(_uploadFile, _downloadFile, x));
 }
 function to_candid_UserProfile_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserProfile): _UserProfile {
     return to_candid_record_n10(_uploadFile, _downloadFile, value);

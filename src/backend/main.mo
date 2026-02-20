@@ -10,7 +10,9 @@ import Runtime "mo:core/Runtime";
 import Principal "mo:core/Principal";
 import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
   public type UserId = Principal;
   public type Username = Text;
@@ -60,6 +62,12 @@ actor {
     };
   };
 
+  // New structured search result type
+  public type UserSearchResult = {
+    principal : Principal;
+    profile : UserProfile;
+  };
+
   // Stable storage structures
   let users = Map.empty<UserId, UserProfile>();
   let posts = Map.empty<PostId, Post>();
@@ -94,7 +102,7 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can save profiles");
     };
-    
+
     // Verify username uniqueness if changed
     let existingProfile = users.get(caller);
     switch (existingProfile) {
@@ -112,7 +120,7 @@ actor {
       };
       case (null) {};
     };
-    
+
     users.add(caller, profile);
   };
 
@@ -122,7 +130,7 @@ actor {
     let existing = users.values().toArray().find(
       func(profile : UserProfile) : Bool { profile.username == username }
     );
-    
+
     if (existing != null) {
       Runtime.trap("Username '" # username # "' has already been taken");
     };
@@ -204,14 +212,14 @@ actor {
 
     let updatedFollowing = switch (callerProfile) {
       case (null) { [] };
-      case (?profile) { 
+      case (?profile) {
         profile.following.filter(func(id : UserId) : Bool { id != userToUnfollow })
       };
     };
 
     let updatedFollowers = switch (targetProfile) {
       case (null) { [] };
-      case (?profile) { 
+      case (?profile) {
         profile.followers.filter(func(id : UserId) : Bool { id != caller })
       };
     };
@@ -258,7 +266,7 @@ actor {
     };
 
     let callerProfile = users.get(caller);
-    
+
     let userPosts = posts.values().toArray().filter(
       func(post : Post) : Bool {
         switch (callerProfile) {
@@ -436,18 +444,23 @@ actor {
   };
 
   /// Search for users by username (requires user role)
-  public query ({ caller }) func searchUsers(searchTerm : Text) : async [UserProfile] {
+  public query ({ caller }) func searchUsers(searchTerm : Text) : async [UserSearchResult] {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can search for other users");
     };
 
-    let filteredUsers = users.values().toArray().filter(
-      func(user : UserProfile) : Bool { 
+    users.toArray().filter(
+      func((principal, user)) {
         user.username.contains(#text searchTerm) or 
         user.displayName.contains(#text searchTerm)
       }
+    ).map<(UserId, UserProfile), UserSearchResult>(
+      func((principal, profile)) {
+        {
+          principal;
+          profile;
+        };
+      }
     );
-    
-    filteredUsers.sort();
   };
 };

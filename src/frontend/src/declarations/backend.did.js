@@ -42,6 +42,10 @@ export const Message = IDL.Record({
   'conversationId' : ConversationId,
   'timestamp' : IDL.Int,
 });
+export const UserSearchResult = IDL.Record({
+  'principal' : IDL.Principal,
+  'profile' : UserProfile,
+});
 
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
@@ -61,7 +65,7 @@ export const idlService = IDL.Service({
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'listConversations' : IDL.Func([], [IDL.Vec(ConversationId)], ['query']),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
-  'searchUsers' : IDL.Func([IDL.Text], [IDL.Vec(UserProfile)], ['query']),
+  'searchUsers' : IDL.Func([IDL.Text], [IDL.Vec(UserSearchResult)], ['query']),
   'sendMessage' : IDL.Func([ConversationId, IDL.Text], [], []),
   'signUp' : IDL.Func([Username, IDL.Text], [], []),
   'startConversation' : IDL.Func([UserId], [ConversationId], []),
@@ -105,6 +109,10 @@ export const idlFactory = ({ IDL }) => {
     'conversationId' : ConversationId,
     'timestamp' : IDL.Int,
   });
+  const UserSearchResult = IDL.Record({
+    'principal' : IDL.Principal,
+    'profile' : UserProfile,
+  });
   
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
@@ -124,7 +132,11 @@ export const idlFactory = ({ IDL }) => {
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'listConversations' : IDL.Func([], [IDL.Vec(ConversationId)], ['query']),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
-    'searchUsers' : IDL.Func([IDL.Text], [IDL.Vec(UserProfile)], ['query']),
+    'searchUsers' : IDL.Func(
+        [IDL.Text],
+        [IDL.Vec(UserSearchResult)],
+        ['query'],
+      ),
     'sendMessage' : IDL.Func([ConversationId, IDL.Text], [], []),
     'signUp' : IDL.Func([Username, IDL.Text], [], []),
     'startConversation' : IDL.Func([UserId], [ConversationId], []),

@@ -7,6 +7,7 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
+export type ConversationId = bigint;
 export type UserId = Principal;
 export interface Post {
     id: bigint;
@@ -26,7 +27,10 @@ export interface Message {
 }
 export type Id = bigint;
 export type Username = string;
-export type ImageAssetUrl = string;
+export interface UserSearchResult {
+    principal: Principal;
+    profile: UserProfile;
+}
 export interface UserProfile {
     bio: string;
     username: Username;
@@ -35,7 +39,7 @@ export interface UserProfile {
     following: Array<UserId>;
     avatar?: Uint8Array;
 }
-export type ConversationId = bigint;
+export type ImageAssetUrl = string;
 export enum UserRole {
     admin = "admin",
     user = "user",
@@ -84,7 +88,7 @@ export interface backendInterface {
     /**
      * / Search for users by username (requires user role)
      */
-    searchUsers(searchTerm: string): Promise<Array<UserProfile>>;
+    searchUsers(searchTerm: string): Promise<Array<UserSearchResult>>;
     /**
      * / Sends a message in a conversation (requires user role and participation)
      */

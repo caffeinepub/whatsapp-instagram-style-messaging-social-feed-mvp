@@ -1,128 +1,44 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-15T15:56:31.611Z",
-  "summary": "The diff adds a new Motoko backend actor plus a React/TS frontend with routing, auth gate, navigation, feed/explore/messages UI, and shared loading/error/empty states. Several key BuildRequest requirements are either not evidenced in the diff (e.g., stable upgrade-safe storage, message image support, required profile fields) or appear implemented differently than specified (e.g., avatar stored as Blob). The diff also introduces some unrequested features (admin/permission system, message read flag).",
+  "generatedAt": "2026-02-15T16:06:09.817Z",
+  "summary": "Diff appears to introduce a new backend search result shape that includes a Principal and updates Explore to call follow/unfollow/startConversation using Principal text, with toast-based English error messages. However, the provided backend/main.mo and ExplorePage.tsx diffs are truncated, so several acceptance-criteria behaviors cannot be conclusively verified from the evidence shown. Also, a migration module was added/wired that is not requested by REQ-8/9/10.",
   "missing_requirements": [
     {
-      "id": "REQ-1",
-      "requirement": "Profile fields include optional bio + avatar image URL/path (and editable profile).",
-      "reason": "Backend UserProfile uses `avatar : ?Blob` rather than an avatar URL/path string; no evidence in shown frontend components of a profile editor that supports bio/avatar URL/path editing.",
+      "id": "REQ-8",
+      "requirement": "Backend exposes a query method that returns search results including each matched user's Principal (UserId) along with the user’s profile fields needed by the Explore UI; callable by authenticated users with same permissions as existing searchUsers; no stable data changes required.",
+      "reason": "backend/main.mo shows a new type UserSearchResult { principal; profile } but the actual searchUsers query method implementation/signature and its permission checks are not visible in the truncated diff, so it cannot be verified that the API now returns Principals and remains authenticated-only as required.",
       "evidence": [
-        "backend/main.mo",
-        "frontend/src/App.tsx (imports ProfilePage but its implementation is not shown)"
+        "backend/main.mo (truncated; shows `public type UserSearchResult = { principal : Principal; profile : UserProfile; };` but not the `searchUsers` method)",
+        "frontend/src/hooks/useQueries.ts (expects `actor.searchUsers(searchTerm)` to return `UserSearchResult[]`, implying a backend change, but backend implementation not shown)"
       ]
     },
     {
-      "id": "REQ-3",
-      "requirement": "Message includes optional image URL (single), and the composer supports sending text plus optional image URL.",
-      "reason": "Backend Message type shown has `content : Text` and no image URL field; frontend MessageComposer only has a text input for `content` with no image URL input.",
+      "id": "REQ-9",
+      "requirement": "Explore follow/unfollow UI is enabled for other users (disabled only while mutation in-flight) and the current user cannot follow themselves (no follow button shown).",
+      "reason": "ExplorePage.tsx is truncated before the rendering of results/actions, so there is no direct evidence of (a) hiding the follow button for the signed-in user and (b) the exact disabled-state logic tied only to in-flight mutations.",
       "evidence": [
-        "backend/main.mo",
-        "frontend/src/messages/MessageComposer.tsx",
-        "frontend/src/messages/ChatThreadPage.tsx"
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "requirement": "List messages is paged by timestamp/id.",
-      "reason": "No evidence in the shown backend snippet or frontend hooks of pagination parameters/return shape for listing messages.",
-      "evidence": [
-        "backend/main.mo (truncated)",
-        "frontend/src/hooks/useQueries.ts (truncated)"
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "requirement": "Chat thread refreshes via periodic polling using React Query (e.g., refetchInterval).",
-      "reason": "ChatThreadPage uses `useGetMessages`, but the shown hook implementation is truncated and does not evidence `refetchInterval` polling configuration.",
-      "evidence": [
-        "frontend/src/messages/ChatThreadPage.tsx",
-        "frontend/src/hooks/useQueries.ts (truncated)"
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "requirement": "Empty states exist for: no messages, no conversations, no posts in feed, and no search results.",
-      "reason": "Feed and conversations empty states are implemented via EmptyState, but ExplorePage shows a simple text message for empty results rather than using the required empty-state illustration/pattern; also no explicit empty-state illustration for 'no search results' is evidenced.",
-      "evidence": [
-        "frontend/src/feed/FeedPage.tsx",
-        "frontend/src/messages/MessagesPage.tsx",
-        "frontend/src/explore/ExplorePage.tsx (truncated)"
-      ]
-    },
-    {
-      "id": "REQ-7",
-      "requirement": "Stable canister storage for users, follows, posts, conversations, and messages persists across upgrades using stable variables and/or stable-friendly serialization patterns.",
-      "reason": "The backend snippet shows in-memory `Map.empty`/`var` fields for users/posts/conversations/messages/IDs, but no `stable var` declarations or preupgrade/postupgrade serialization patterns are evidenced.",
-      "evidence": [
-        "backend/main.mo"
+        "frontend/src/explore/ExplorePage.tsx (truncated; handlers exist, but results list/button rendering not shown)"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Custom admin/role-based access control system with secret-token initialization from URL parameter (e.g., `_initializeAccessControlWithSecret` and `caffeineAdminToken`).",
-      "reason": "BuildRequest requires Internet Identity auth but does not request an admin token, secret URL params, or a general permissions system/mixin.",
+      "description": "Introduced a migration module and wired migration into the Motoko actor.",
+      "reason": "REQ-8/9/10 are about search results including Principal and wiring Explore follow/unfollow/chat; they do not request adding upgrade migration scaffolding or a new migration.mo module.",
       "evidence": [
-        "backend/main.mo",
-        "frontend/src/hooks/useActor.ts"
-      ]
-    },
-    {
-      "description": "Message `read : Bool` field / read-receipt concept.",
-      "reason": "BuildRequest message schema only includes sender, timestamp, text content, and optional image URL; it does not request read receipts.",
-      "evidence": [
-        "backend/main.mo"
-      ]
-    },
-    {
-      "description": "Dark-mode theming infrastructure via `next-themes` ThemeProvider.",
-      "reason": "BuildRequest asks for a coherent theme but does not request system/theme switching support or use of `next-themes`.",
-      "evidence": [
-        "frontend/src/App.tsx"
-      ]
-    },
-    {
-      "description": "Post image carousel UI for multi-image posts.",
-      "reason": "Not explicitly requested (feed just needs to show images); carousel is an extra feature beyond the MVP requirements.",
-      "evidence": [
-        "frontend/src/components/social/PostCard.tsx"
+        "backend/migration.mo (new file)",
+        "backend/main.mo (imports `Migration \"migration\";` and includes `(with migration = Migration.run)` at actor start)"
       ]
     }
   ],
-  "confidence": 0.72,
+  "confidence": 0.62,
   "changed_files": [
-    "all_files_summary.json",
     "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/index.css",
-    "frontend/index.html",
-    "frontend/src/App.tsx",
-    "frontend/src/auth/AuthGate.tsx",
-    "frontend/src/auth/LoginButton.tsx",
-    "frontend/src/components/social/PostCard.tsx",
-    "frontend/src/components/states/EmptyState.tsx",
-    "frontend/src/components/states/ErrorState.tsx",
-    "frontend/src/components/states/LoadingState.tsx",
     "frontend/src/explore/ExplorePage.tsx",
-    "frontend/src/feed/FeedPage.tsx",
-    "frontend/src/hooks/useActor.ts",
-    "frontend/src/hooks/useInternetIdentity.ts",
     "frontend/src/hooks/useQueries.ts",
-    "frontend/src/index.css",
-    "frontend/src/layout/AppLayout.tsx",
-    "frontend/src/main.tsx",
-    "frontend/src/messages/ChatThreadPage.tsx",
-    "frontend/src/messages/MessageComposer.tsx",
-    "frontend/src/messages/MessagesPage.tsx",
-    "frontend/src/navigation/PrimaryNav.tsx",
-    "frontend/src/onboarding/OnboardingPage.tsx",
-    "frontend/src/posts/CreatePostPage.tsx",
-    "frontend/src/profile/ProfilePage.tsx",
-    "frontend/src/utils/urlParams.ts",
-    "frontend/src/validation/validators.ts",
-    "frontend/tailwind.config.js",
     "project_state.json"
   ]
 }

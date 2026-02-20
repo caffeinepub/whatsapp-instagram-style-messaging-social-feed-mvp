@@ -1,11 +1,12 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 3,
+  "projectStateVersion": 5,
   "summary": "Build a chat/messaging social app similar to WhatsApp and Instagram.",
   "architectural_notes": [],
-  "known_issues": [],
-  "isFixRequest": false,
-  "imageRequirements": "## Required Images\n- App logo mark, modern minimal chat+camera hybrid glyph on transparent background (app-logo.dim_512x512.png)\n- Auth/onboarding illustration, abstract people chatting with warm tones (onboarding-illustration.dim_1200x800.png)\n- Empty state illustration for messages, minimal inbox/chat bubbles style (empty-messages.dim_900x600.png)\n- Empty state illustration for feed, minimal photo grid/camera style (empty-feed.dim_900x600.png)",
+  "known_issues": [
+    "Users are unable to follow other users (follow/unfollow functionality not working in the current deployed build)."
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
       "id": "feature-implement-internet-identity-authentication-and-a-minimal-onboarding-flow-first-sign-in-creates-a-user-record-prompt-for-display-name-unique-username-handle-and-optional-bio-avatar",
@@ -54,6 +55,22 @@
         "REQ-6"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-wire-explore-page-follow-unfollow-to-the-backend-using-principals-from-search-results-and-remove-the-current-disabled-follow-unfollow-ui-state",
+      "title": "Wire Explore page follow/unfollow to the backend using Principals from search results, and remove the current disabled follow/unfollow UI state.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-enable-start-chat-from-explore-by-using-the-searched-user-s-principal-id-consistent-with-how-startconversation-expects-a-principal",
+      "title": "Enable “Start chat” from Explore by using the searched user’s Principal ID, consistent with how startConversation expects a Principal.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -68,6 +85,14 @@
       "summary": "Ensure stable canister storage for users, follows, posts, conversations, and messages using the Internet Computer canister state patterns appropriate for upgrades (stable storage) within a single Motoko actor.",
       "reqIds": [
         "REQ-7"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Update the backend user search API so the frontend can identify each search result by Principal, enabling follow/unfollow calls that require a Principal.",
+      "reqIds": [
+        "REQ-8"
       ],
       "status": "pending"
     }

@@ -6,7 +6,7 @@
   "frontend/src/layout/AppLayout.tsx": "Responsive app shell with desktop sidebar navigation, mobile header with sheet menu, and bottom tab bar for mobile devices.",
   "frontend/src/navigation/PrimaryNav.tsx": "Primary navigation component with links to Feed, Explore, Create, Messages, and Profile, supporting both desktop sidebar and mobile bottom bar layouts.",
   "frontend/src/feed/FeedPage.tsx": "Feed page displaying posts from followed users in reverse chronological order with loading, error, and empty states.",
-  "frontend/src/explore/ExplorePage.tsx": "User search and discovery page with follow/unfollow actions, currently limited by backend API restrictions that prevent accessing user Principal IDs from search results.",
+  "frontend/src/explore/ExplorePage.tsx": "User search and discovery page with fully functional follow/unfollow actions and start chat functionality using Principal IDs from search results, including proper error handling, loading states, and toast notifications.",
   "frontend/src/messages/MessagesPage.tsx": "Conversations list page showing all active 1:1 conversations with preview of last message and programmatic navigation to chat threads using useNavigate.",
   "frontend/src/messages/ChatThreadPage.tsx": "Individual chat thread view with message history, polling-based refresh, and message composer at bottom.",
   "frontend/src/messages/MessageComposer.tsx": "Message input component with send button, validation, and loading states for composing and sending messages.",
@@ -16,7 +16,7 @@
   "frontend/src/components/states/LoadingState.tsx": "Reusable loading state component with spinner and customizable message.",
   "frontend/src/components/states/ErrorState.tsx": "Reusable error state component with error message display and optional retry action.",
   "frontend/src/components/states/EmptyState.tsx": "Reusable empty state component with optional illustration, title, message, and call-to-action button.",
-  "frontend/src/hooks/useQueries.ts": "React Query hooks for all backend operations including profile management, social features (follow/unfollow, posts, feed), and messaging (conversations, messages) with proper Principal type handling.",
+  "frontend/src/hooks/useQueries.ts": "React Query hooks for all backend operations including profile management, social features (follow/unfollow, posts, feed), and messaging with proper Principal type handling and UserSearchResult support for explore functionality.",
   "frontend/src/validation/validators.ts": "Client-side validation functions for username, display name, caption, message content, image URLs, and search terms with English error messages.",
   "frontend/src/index.css": "Global styles with OKLCH-based color system using warm coral/peach primary colors for light mode and adjusted palette for dark mode.",
   "frontend/tailwind.config.js": "Tailwind configuration with Inter font family, custom color tokens, border radius, shadows, and animation settings."

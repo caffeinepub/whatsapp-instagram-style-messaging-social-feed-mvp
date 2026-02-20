@@ -41,6 +41,10 @@ export interface UserProfile {
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
+export interface UserSearchResult {
+  'principal' : Principal,
+  'profile' : UserProfile,
+}
 export type Username = string;
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
@@ -86,7 +90,7 @@ export interface _SERVICE {
   /**
    * / Search for users by username (requires user role)
    */
-  'searchUsers' : ActorMethod<[string], Array<UserProfile>>,
+  'searchUsers' : ActorMethod<[string], Array<UserSearchResult>>,
   /**
    * / Sends a message in a conversation (requires user role and participation)
    */

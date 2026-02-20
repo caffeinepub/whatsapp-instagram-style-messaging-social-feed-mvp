@@ -2,36 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-implement-internet-identity-authentication-and-a-minimal-onboarding-flow-first-sign-in-creates-a-user-record-prompt-for-display-name-unique-username-handle-and-optional-bio-avatar",
-      "featureTitle": "Implement Internet Identity authentication and a minimal onboarding flow: first sign-in creates a user record; prompt for display name, unique username/handle, and optional bio + avatar.",
+      "featureId": "feature-wire-explore-page-follow-unfollow-to-the-backend-using-principals-from-search-results-and-remove-the-current-disabled-follow-unfollow-ui-state",
+      "featureTitle": "Wire Explore page follow/unfollow to the backend using Principals from search results, and remove the current disabled follow/unfollow UI state.",
       "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/auth/AuthGate.tsx",
-        "frontend/src/auth/LoginButton.tsx",
-        "frontend/src/onboarding/OnboardingPage.tsx",
-        "frontend/src/profile/ProfilePage.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-1"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-create-core-data-models-and-canister-methods-for-a-simple-instagram-like-social-layer-user-search-follow-unfollow-and-a-posts-feed-where-users-can-create-posts-with-a-caption-and-up-to-10-images-stored-as-frontend-static-asset-urls-and-view-a-timeline-feed-from-followed-users",
-      "featureTitle": "Create core data models and canister methods for a simple Instagram-like social layer: user search, follow/unfollow, and a posts feed where users can create posts with a caption and up to 10 images (stored as frontend static asset URLs) and view a timeline feed from followed users.",
-      "files": [
-        "frontend/src/components/social/PostCard.tsx",
         "frontend/src/explore/ExplorePage.tsx",
-        "frontend/src/feed/FeedPage.tsx",
-        "frontend/src/posts/CreatePostPage.tsx"
+        "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -42,85 +17,16 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-2"
+        "REQ-9"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-create-a-whatsapp-like-1-1-direct-messaging-system-start-a-conversation-with-another-user-list-conversations-send-messages-and-view-message-history-with-polling-based-refresh-no-real-time-sockets",
-      "featureTitle": "Create a WhatsApp-like 1:1 direct messaging system: start a conversation with another user, list conversations, send messages, and view message history with polling-based refresh (no real-time sockets).",
+      "featureId": "feature-enable-start-chat-from-explore-by-using-the-searched-user-s-principal-id-consistent-with-how-startconversation-expects-a-principal",
+      "featureTitle": "Enable “Start chat” from Explore by using the searched user’s Principal ID, consistent with how startConversation expects a Principal.",
       "files": [
-        "frontend/src/messages/ChatThreadPage.tsx",
-        "frontend/src/messages/MessageComposer.tsx",
-        "frontend/src/messages/MessagesPage.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-navigation-and-app-structure-for-the-mvp-with-these-primary-sections-feed-explore-messages-profile-and-create-post-ensure-consistent-layout-across-desktop-and-mobile-widths",
-      "featureTitle": "Add navigation and app structure for the MVP with these primary sections: Feed, Explore, Messages, Profile, and Create Post; ensure consistent layout across desktop and mobile widths.",
-      "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/layout/AppLayout.tsx",
-        "frontend/src/navigation/PrimaryNav.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-4"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-choose-and-apply-a-coherent-visual-theme-for-the-entire-ui-colors-typography-spacing-and-component-styling-suitable-for-a-modern-chat-social-app-enforce-it-consistently-across-all-screens",
-      "featureTitle": "Choose and apply a coherent visual theme for the entire UI (colors, typography, spacing, and component styling) suitable for a modern chat + social app; enforce it consistently across all screens.",
-      "files": [
-        "frontend/src/components/social/PostCard.tsx",
-        "frontend/src/index.css",
-        "frontend/src/messages/ChatThreadPage.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-5"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-basic-safety-quality-features-input-validation-and-empty-loading-error-states-across-feed-explore-messages-and-profile",
-      "featureTitle": "Add basic safety/quality features: input validation and empty/loading/error states across Feed, Explore, Messages, and Profile.",
-      "files": [
-        "frontend/src/components/states/EmptyState.tsx",
-        "frontend/src/components/states/ErrorState.tsx",
-        "frontend/src/components/states/LoadingState.tsx",
         "frontend/src/explore/ExplorePage.tsx",
-        "frontend/src/messages/MessageComposer.tsx",
-        "frontend/src/onboarding/OnboardingPage.tsx",
-        "frontend/src/posts/CreatePostPage.tsx",
-        "frontend/src/validation/validators.ts"
+        "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -131,7 +37,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-6"
+        "REQ-10"
       ],
       "confidence": "high"
     }

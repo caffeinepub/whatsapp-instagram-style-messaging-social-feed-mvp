@@ -1,7 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import type { UserProfile, Post, Message, ConversationId } from '../backend';
+import type { UserProfile, Post, Message, ConversationId, UserSearchResult } from '../backend';
 import { Principal } from '@dfinity/principal';
+import { useInternetIdentity } from './useInternetIdentity';
 
 export function useGetCallerUserProfile() {
   const { actor, isFetching: actorFetching } = useActor();
@@ -69,7 +70,7 @@ export function useSaveCallerUserProfile() {
 export function useSearchUsers(searchTerm: string) {
   const { actor, isFetching: actorFetching } = useActor();
 
-  return useQuery<UserProfile[]>({
+  return useQuery<UserSearchResult[]>({
     queryKey: ['searchUsers', searchTerm],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
@@ -236,6 +237,3 @@ export function useGetConversationDetails(conversationId: bigint) {
     enabled: !!actor && !actorFetching,
   });
 }
-
-// Import useInternetIdentity for conversation details
-import { useInternetIdentity } from './useInternetIdentity';
