@@ -1,0 +1,76 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Fix slow initial app load time",
+  "requirements": [
+    {
+      "id": "REQ-3",
+      "summary": "Implement code splitting and lazy loading for all route-level page components in App.tsx so that only the code needed for the initial route is loaded on first paint, deferring all other pages until navigated to.",
+      "acceptanceCriteria": [
+        "All page components (FeedPage, ExplorePage, CreatePostPage, MessagesPage, GroupsPage, ProfilePage, etc.) are loaded via React.lazy() with Suspense boundaries.",
+        "Initial JavaScript bundle size is reduced by deferring non-critical route chunks.",
+        "A lightweight fallback spinner is shown while lazy chunks are loading."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Replace all static route component imports with React.lazy() dynamic imports for FeedPage, ExplorePage, CreatePostPage, MessagesPage, ChatThreadPage, GroupsPage, GroupDetailPage, GroupChatPage, ProfilePage, UserProfilePage, SavedPostsPage, BlockedUsersPage, and OnboardingPage. Wrap the RouterProvider with a Suspense boundary that displays a lightweight loading fallback (e.g., a centered spinner or skeleton) while lazy chunks load."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Add a lightweight splash/loading screen in RootLayout.tsx that renders immediately on app mount with minimal overhead, replacing any heavy initialization logic that blocks first render.",
+      "acceptanceCriteria": [
+        "A visually clean loading screen appears almost instantly on page load before authentication or data fetching completes.",
+        "The loading screen does not depend on any async data or actor initialization to render.",
+        "Users see meaningful UI within the first render cycle rather than a blank screen."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/layout/RootLayout.tsx",
+          "operation": "modify",
+          "description": "Refactor the loading state logic to render a lightweight splash screen immediately during the initial authentication phase. Ensure the splash UI (e.g., app logo from frontend/public/assets/generated/app-logo.dim_512x512.png, spinner, and minimal markup) displays synchronously without waiting for actor or profile queries. Move heavy initialization checks (like timeout detection) to happen after the initial render cycle so the splash appears instantly."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Optimize the actor initialization in useActor.ts and authentication flow in RootLayout.tsx to avoid blocking the UI. Ensure that the ICP backend actor is initialized asynchronously and does not delay the first render of the application shell.",
+      "acceptanceCriteria": [
+        "Actor creation does not block the main thread during initial render.",
+        "Authentication state resolves independently from the initial page paint.",
+        "The app shell layout renders without waiting for the actor to be fully initialized."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/layout/RootLayout.tsx",
+          "operation": "modify",
+          "description": "Decouple the initial splash screen render from actor/profile query completion. Render the app shell and splash immediately, allowing actor initialization and authentication checks to complete asynchronously in the background. Update conditional rendering logic so the splash transitions to the authenticated UI or login prompt only after async state resolves, preventing any blocking on the critical render path."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Set appropriate staleTime and cacheTime values on the React Query client to prevent redundant backend calls on initial load and navigation, reducing perceived load latency.",
+      "acceptanceCriteria": [
+        "The global QueryClient is configured with a sensible staleTime (e.g., 30–60 seconds) so repeated visits do not re-fetch immediately.",
+        "Queries that are already cached are served instantly without a loading spinner on re-navigation.",
+        "No regressions in data freshness for time-sensitive queries like messages or feed."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Configure the QueryClient with default staleTime of 30 seconds and gcTime (formerly cacheTime) of 5 minutes. Override staleTime for time-sensitive queries (messages, group messages, online users) to a shorter duration (e.g., 5–10 seconds) by specifying custom staleTime in their respective useQuery hooks in frontend/src/hooks/useQueries.ts. Ensure that cached data is reused on navigation without triggering unnecessary loading states."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add explicit staleTime overrides for time-sensitive queries: set staleTime to 5 seconds for getMessages, getGroupMessages, and getOnlineUsers queries to maintain data freshness for chat and presence features. Leave other queries (feed, profiles, conversations) to inherit the default 30-second staleTime configured in the QueryClient."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-implement-code-splitting-and-lazy-loading-for-all-route-level-page-components-in-app-tsx-so-that-only-the-code-needed-for-the-initial-route-is-loaded-on-first-paint-deferring-all-other-pages-until-navigated-to",
+      "featureTitle": "Implement code splitting and lazy loading for all route-level page components in App.tsx so that only the code needed for the initial route is loaded on first paint, deferring all other pages until navigated to.",
+      "files": [
+        "frontend/src/App.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-lightweight-splash-loading-screen-in-rootlayout-tsx-that-renders-immediately-on-app-mount-with-minimal-overhead-replacing-any-heavy-initialization-logic-that-blocks-first-render",
+      "featureTitle": "Add a lightweight splash/loading screen in RootLayout.tsx that renders immediately on app mount with minimal overhead, replacing any heavy initialization logic that blocks first render.",
+      "files": [
+        "frontend/src/layout/RootLayout.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-optimize-the-actor-initialization-in-useactor-ts-and-authentication-flow-in-rootlayout-tsx-to-avoid-blocking-the-ui-ensure-that-the-icp-backend-actor-is-initialized-asynchronously-and-does-not-delay-the-first-render-of-the-application-shell",
+      "featureTitle": "Optimize the actor initialization in useActor.ts and authentication flow in RootLayout.tsx to avoid blocking the UI. Ensure that the ICP backend actor is initialized asynchronously and does not delay the first render of the application shell.",
+      "files": [
+        "frontend/src/layout/RootLayout.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-set-appropriate-staletime-and-cachetime-values-on-the-react-query-client-to-prevent-redundant-backend-calls-on-initial-load-and-navigation-reducing-perceived-load-latency",
+      "featureTitle": "Set appropriate staleTime and cacheTime values on the React Query client to prevent redundant backend calls on initial load and navigation, reducing perceived load latency.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/hooks/useQueries.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "kind": "build_request",
+  "title": "Fix slow initial app load time",
+  "priority": "high",
+  "requirements": [
+    {
+      "id": "REQ-3",
+      "text": "Implement code splitting and lazy loading for all route-level page components in App.tsx so that only the code needed for the initial route is loaded on first paint, deferring all other pages until navigated to.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "the app itself taking too long to load"
+        ]
+      },
+      "acceptanceCriteria": [
+        "All page components (FeedPage, ExplorePage, CreatePostPage, MessagesPage, GroupsPage, ProfilePage, etc.) are loaded via React.lazy() with Suspense boundaries.",
+        "Initial JavaScript bundle size is reduced by deferring non-critical route chunks.",
+        "A lightweight fallback spinner is shown while lazy chunks are loading."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Add a lightweight splash/loading screen in RootLayout.tsx that renders immediately on app mount with minimal overhead, replacing any heavy initialization logic that blocks first render.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "the app itself taking too long to load"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A visually clean loading screen appears almost instantly on page load before authentication or data fetching completes.",
+        "The loading screen does not depend on any async data or actor initialization to render.",
+        "Users see meaningful UI within the first render cycle rather than a blank screen."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Optimize the actor initialization in useActor.ts and authentication flow in RootLayout.tsx to avoid blocking the UI. Ensure that the ICP backend actor is initialized asynchronously and does not delay the first render of the application shell.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "the app itself taking too long to load"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Actor creation does not block the main thread during initial render.",
+        "Authentication state resolves independently from the initial page paint.",
+        "The app shell layout renders without waiting for the actor to be fully initialized."
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Set appropriate staleTime and cacheTime values on the React Query client to prevent redundant backend calls on initial load and navigation, reducing perceived load latency.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "the app itself taking too long to load"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The global QueryClient is configured with a sensible staleTime (e.g., 30–60 seconds) so repeated visits do not re-fetch immediately.",
+        "Queries that are already cached are served instantly without a loading spinner on re-navigation.",
+        "No regressions in data freshness for time-sensitive queries like messages or feed."
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui.",
+    "Do not alter the backend Motoko actor or data models."
+  ],
+  "nonGoals": [
+    "Changing backend query logic or data structures.",
+    "Adding service workers or PWA caching.",
+    "Modifying the Internet Identity authentication provider internals."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

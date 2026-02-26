@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "New project",
+  "architectural_notes": [],
+  "known_issues": [
+    "App takes too long to load initially"
+  ],
+  "isFixRequest": true,
+  "existing_features": [
+    {
+      "id": "feature-implement-code-splitting-and-lazy-loading-for-all-route-level-page-components-in-app-tsx-so-that-only-the-code-needed-for-the-initial-route-is-loaded-on-first-paint-deferring-all-other-pages-until-navigated-to",
+      "title": "Implement code splitting and lazy loading for all route-level page components in App.tsx so that only the code needed for the initial route is loaded on first paint, deferring all other pages until navigated to.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-lightweight-splash-loading-screen-in-rootlayout-tsx-that-renders-immediately-on-app-mount-with-minimal-overhead-replacing-any-heavy-initialization-logic-that-blocks-first-render",
+      "title": "Add a lightweight splash/loading screen in RootLayout.tsx that renders immediately on app mount with minimal overhead, replacing any heavy initialization logic that blocks first render.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-optimize-the-actor-initialization-in-useactor-ts-and-authentication-flow-in-rootlayout-tsx-to-avoid-blocking-the-ui-ensure-that-the-icp-backend-actor-is-initialized-asynchronously-and-does-not-delay-the-first-render-of-the-application-shell",
+      "title": "Optimize the actor initialization in useActor.ts and authentication flow in RootLayout.tsx to avoid blocking the UI. Ensure that the ICP backend actor is initialized asynchronously and does not delay the first render of the application shell.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-set-appropriate-staletime-and-cachetime-values-on-the-react-query-client-to-prevent-redundant-backend-calls-on-initial-load-and-navigation-reducing-perceived-load-latency",
+      "title": "Set appropriate staleTime and cacheTime values on the React Query client to prevent redundant backend calls on initial load and navigation, reducing perceived load latency.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Fix slow app load time",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "projectName": "Fix slow initial app load time",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}
