@@ -8,32 +8,110 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
+export const _CaffeineStorageCreateCertificateResult = IDL.Record({
+  'method' : IDL.Text,
+  'blob_hash' : IDL.Text,
+});
+export const _CaffeineStorageRefillInformation = IDL.Record({
+  'proposed_top_up_amount' : IDL.Opt(IDL.Nat),
+});
+export const _CaffeineStorageRefillResult = IDL.Record({
+  'success' : IDL.Opt(IDL.Bool),
+  'topped_up_amount' : IDL.Opt(IDL.Nat),
+});
+export const CallId = IDL.Nat;
+export const GroupId = IDL.Nat;
+export const PostId = IDL.Nat;
 export const UserRole = IDL.Variant({
   'admin' : IDL.Null,
   'user' : IDL.Null,
   'guest' : IDL.Null,
 });
-export const ImageAssetUrl = IDL.Text;
-export const PostId = IDL.Nat;
+export const MediaAsset = IDL.Record({
+  'url' : IDL.Text,
+  'isDataUrl' : IDL.Bool,
+});
+export const ContentType = IDL.Variant({
+  'post' : IDL.Null,
+  'reel' : IDL.Null,
+});
+export const Id = IDL.Nat;
 export const UserId = IDL.Principal;
+export const LiveStream = IDL.Record({
+  'id' : Id,
+  'title' : IDL.Text,
+  'active' : IDL.Bool,
+  'description' : IDL.Text,
+  'author' : UserId,
+  'likes' : IDL.Vec(UserId),
+  'viewers' : IDL.Vec(UserId),
+  'timestamp' : IDL.Int,
+  'streamUrl' : IDL.Text,
+});
+export const ExternalBlob = IDL.Vec(IDL.Nat8);
+export const Comment = IDL.Record({
+  'commentId' : Id,
+  'authorId' : UserId,
+  'text' : IDL.Text,
+  'timestamp' : IDL.Int,
+});
+export const Movie = IDL.Record({
+  'id' : Id,
+  'title' : IDL.Text,
+  'thumbnail' : ExternalBlob,
+  'description' : IDL.Text,
+  'videoFile' : ExternalBlob,
+  'likes' : IDL.Vec(UserId),
+  'timestamp' : IDL.Int,
+  'uploader' : UserId,
+  'comments' : IDL.Vec(Comment),
+});
+export const CallStatus = IDL.Variant({
+  'pending' : IDL.Null,
+  'accepted' : IDL.Null,
+  'declined' : IDL.Null,
+});
 export const Username = IDL.Text;
+export const ProfilePrivacy = IDL.Variant({
+  'profilePrivate' : IDL.Null,
+  'profilePublic' : IDL.Null,
+});
 export const UserProfile = IDL.Record({
   'bio' : IDL.Text,
+  'blockedUsers' : IDL.Vec(UserId),
   'username' : Username,
   'displayName' : IDL.Text,
+  'savedPosts' : IDL.Vec(PostId),
+  'privacy' : ProfilePrivacy,
   'followers' : IDL.Vec(UserId),
   'following' : IDL.Vec(UserId),
   'avatar' : IDL.Opt(IDL.Vec(IDL.Nat8)),
+  'online' : IDL.Bool,
 });
 export const Post = IDL.Record({
-  'id' : IDL.Nat,
+  'id' : Id,
+  'media' : IDL.Vec(MediaAsset),
+  'contentType' : ContentType,
   'author' : UserId,
+  'likes' : IDL.Vec(UserId),
   'timestamp' : IDL.Int,
   'caption' : IDL.Text,
-  'images' : IDL.Vec(ImageAssetUrl),
+  'comments' : IDL.Vec(Comment),
+});
+export const Group = IDL.Record({
+  'id' : GroupId,
+  'creator' : IDL.Principal,
+  'members' : IDL.Vec(IDL.Principal),
+  'name' : IDL.Text,
+  'pendingInvites' : IDL.Vec(IDL.Principal),
+});
+export const GroupMessage = IDL.Record({
+  'content' : IDL.Text,
+  'sender' : IDL.Principal,
+  'groupId' : GroupId,
+  'timestamp' : IDL.Int,
 });
 export const ConversationId = IDL.Nat;
-export const Id = IDL.Nat;
 export const Message = IDL.Record({
   'id' : Id,
   'content' : IDL.Text,
@@ -42,65 +120,223 @@ export const Message = IDL.Record({
   'conversationId' : ConversationId,
   'timestamp' : IDL.Int,
 });
+export const PublicUserProfile = IDL.Record({
+  'bio' : IDL.Text,
+  'username' : Username,
+  'displayName' : IDL.Text,
+  'privacy' : ProfilePrivacy,
+  'avatar' : IDL.Opt(IDL.Vec(IDL.Nat8)),
+});
 export const UserSearchResult = IDL.Record({
   'principal' : IDL.Principal,
-  'profile' : UserProfile,
+  'profile' : PublicUserProfile,
 });
 
 export const idlService = IDL.Service({
+  '_caffeineStorageBlobIsLive' : IDL.Func(
+      [IDL.Vec(IDL.Nat8)],
+      [IDL.Bool],
+      ['query'],
+    ),
+  '_caffeineStorageBlobsToDelete' : IDL.Func(
+      [],
+      [IDL.Vec(IDL.Vec(IDL.Nat8))],
+      ['query'],
+    ),
+  '_caffeineStorageConfirmBlobDeletion' : IDL.Func(
+      [IDL.Vec(IDL.Vec(IDL.Nat8))],
+      [],
+      [],
+    ),
+  '_caffeineStorageCreateCertificate' : IDL.Func(
+      [IDL.Text],
+      [_CaffeineStorageCreateCertificateResult],
+      [],
+    ),
+  '_caffeineStorageRefillCashier' : IDL.Func(
+      [IDL.Opt(_CaffeineStorageRefillInformation)],
+      [_CaffeineStorageRefillResult],
+      [],
+    ),
+  '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+  'acceptCall' : IDL.Func([CallId], [], []),
+  'acceptGroupInvite' : IDL.Func([GroupId], [], []),
+  'addComment' : IDL.Func([PostId, IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'authenticate' : IDL.Func([], [], []),
-  'createPost' : IDL.Func([IDL.Text, IDL.Vec(ImageAssetUrl)], [PostId], []),
+  'blockUser' : IDL.Func([IDL.Principal], [], []),
+  'clearCommentsFromPost' : IDL.Func([PostId], [], []),
+  'createGroup' : IDL.Func([IDL.Text], [GroupId], []),
+  'createPost' : IDL.Func(
+      [IDL.Text, IDL.Vec(MediaAsset), ContentType],
+      [PostId],
+      [],
+    ),
+  'declineCall' : IDL.Func([CallId], [], []),
+  'declineGroupInvite' : IDL.Func([GroupId], [], []),
+  'deletePost' : IDL.Func([PostId], [], []),
+  'endLiveStream' : IDL.Func([Id], [], []),
   'followUser' : IDL.Func([UserId], [], []),
+  'getActiveLiveStreams' : IDL.Func([], [IDL.Vec(LiveStream)], ['query']),
+  'getAllMovies' : IDL.Func([], [IDL.Vec(Movie)], ['query']),
+  'getBlockedUsers' : IDL.Func([], [IDL.Vec(IDL.Principal)], ['query']),
+  'getCall_status' : IDL.Func([CallId], [IDL.Opt(CallStatus)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getFeed' : IDL.Func([], [IDL.Vec(Post)], ['query']),
+  'getGroupInvites' : IDL.Func([], [IDL.Vec(Group)], ['query']),
+  'getGroupMessages' : IDL.Func([GroupId], [IDL.Vec(GroupMessage)], ['query']),
   'getMessages' : IDL.Func([ConversationId], [IDL.Vec(Message)], ['query']),
+  'getMovie' : IDL.Func([Id], [IDL.Opt(Movie)], ['query']),
+  'getMyGroups' : IDL.Func([], [IDL.Vec(Group)], ['query']),
+  'getOnlineUsers' : IDL.Func([], [IDL.Vec(PublicUserProfile)], ['query']),
+  'getPublicUserProfile' : IDL.Func(
+      [UserId],
+      [IDL.Opt(PublicUserProfile)],
+      ['query'],
+    ),
+  'getSavedPosts' : IDL.Func([], [IDL.Vec(Post)], ['query']),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
       ['query'],
     ),
+  'initializeTimers' : IDL.Func([], [], []),
+  'initiateCall' : IDL.Func([UserId], [CallId], []),
+  'inviteToGroup' : IDL.Func([GroupId, IDL.Principal], [], []),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'joinLiveStream' : IDL.Func([Id], [], []),
+  'likeLiveStream' : IDL.Func([Id], [], []),
+  'likeMovie' : IDL.Func([Id], [], []),
+  'likePost' : IDL.Func([PostId], [], []),
   'listConversations' : IDL.Func([], [IDL.Vec(ConversationId)], ['query']),
+  'removeComment' : IDL.Func([PostId, Id], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'savePost' : IDL.Func([PostId], [], []),
   'searchUsers' : IDL.Func([IDL.Text], [IDL.Vec(UserSearchResult)], ['query']),
+  'sendGroupMessage' : IDL.Func([GroupId, IDL.Text], [], []),
   'sendMessage' : IDL.Func([ConversationId, IDL.Text], [], []),
-  'signUp' : IDL.Func([Username, IDL.Text], [], []),
+  'setOnlineStatus' : IDL.Func([IDL.Bool], [], []),
+  'setProfilePrivacyLevel' : IDL.Func([ProfilePrivacy], [], []),
+  'signUp' : IDL.Func([Username, IDL.Text, ProfilePrivacy], [], []),
   'startConversation' : IDL.Func([UserId], [ConversationId], []),
+  'startLiveStream' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [Id], []),
+  'unblockUser' : IDL.Func([IDL.Principal], [], []),
   'unfollowUser' : IDL.Func([UserId], [], []),
+  'unlikeMovie' : IDL.Func([Id], [], []),
+  'unlikePost' : IDL.Func([PostId], [], []),
+  'unsavePost' : IDL.Func([PostId], [], []),
+  'uploadMovie' : IDL.Func(
+      [IDL.Text, IDL.Text, ExternalBlob, ExternalBlob],
+      [Id],
+      [],
+    ),
+  'uploadStory' : IDL.Func([MediaAsset], [], []),
+  'viewStory' : IDL.Func([Id], [IDL.Opt(MediaAsset)], []),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
+  const _CaffeineStorageCreateCertificateResult = IDL.Record({
+    'method' : IDL.Text,
+    'blob_hash' : IDL.Text,
+  });
+  const _CaffeineStorageRefillInformation = IDL.Record({
+    'proposed_top_up_amount' : IDL.Opt(IDL.Nat),
+  });
+  const _CaffeineStorageRefillResult = IDL.Record({
+    'success' : IDL.Opt(IDL.Bool),
+    'topped_up_amount' : IDL.Opt(IDL.Nat),
+  });
+  const CallId = IDL.Nat;
+  const GroupId = IDL.Nat;
+  const PostId = IDL.Nat;
   const UserRole = IDL.Variant({
     'admin' : IDL.Null,
     'user' : IDL.Null,
     'guest' : IDL.Null,
   });
-  const ImageAssetUrl = IDL.Text;
-  const PostId = IDL.Nat;
+  const MediaAsset = IDL.Record({ 'url' : IDL.Text, 'isDataUrl' : IDL.Bool });
+  const ContentType = IDL.Variant({ 'post' : IDL.Null, 'reel' : IDL.Null });
+  const Id = IDL.Nat;
   const UserId = IDL.Principal;
+  const LiveStream = IDL.Record({
+    'id' : Id,
+    'title' : IDL.Text,
+    'active' : IDL.Bool,
+    'description' : IDL.Text,
+    'author' : UserId,
+    'likes' : IDL.Vec(UserId),
+    'viewers' : IDL.Vec(UserId),
+    'timestamp' : IDL.Int,
+    'streamUrl' : IDL.Text,
+  });
+  const ExternalBlob = IDL.Vec(IDL.Nat8);
+  const Comment = IDL.Record({
+    'commentId' : Id,
+    'authorId' : UserId,
+    'text' : IDL.Text,
+    'timestamp' : IDL.Int,
+  });
+  const Movie = IDL.Record({
+    'id' : Id,
+    'title' : IDL.Text,
+    'thumbnail' : ExternalBlob,
+    'description' : IDL.Text,
+    'videoFile' : ExternalBlob,
+    'likes' : IDL.Vec(UserId),
+    'timestamp' : IDL.Int,
+    'uploader' : UserId,
+    'comments' : IDL.Vec(Comment),
+  });
+  const CallStatus = IDL.Variant({
+    'pending' : IDL.Null,
+    'accepted' : IDL.Null,
+    'declined' : IDL.Null,
+  });
   const Username = IDL.Text;
+  const ProfilePrivacy = IDL.Variant({
+    'profilePrivate' : IDL.Null,
+    'profilePublic' : IDL.Null,
+  });
   const UserProfile = IDL.Record({
     'bio' : IDL.Text,
+    'blockedUsers' : IDL.Vec(UserId),
     'username' : Username,
     'displayName' : IDL.Text,
+    'savedPosts' : IDL.Vec(PostId),
+    'privacy' : ProfilePrivacy,
     'followers' : IDL.Vec(UserId),
     'following' : IDL.Vec(UserId),
     'avatar' : IDL.Opt(IDL.Vec(IDL.Nat8)),
+    'online' : IDL.Bool,
   });
   const Post = IDL.Record({
-    'id' : IDL.Nat,
+    'id' : Id,
+    'media' : IDL.Vec(MediaAsset),
+    'contentType' : ContentType,
     'author' : UserId,
+    'likes' : IDL.Vec(UserId),
     'timestamp' : IDL.Int,
     'caption' : IDL.Text,
-    'images' : IDL.Vec(ImageAssetUrl),
+    'comments' : IDL.Vec(Comment),
+  });
+  const Group = IDL.Record({
+    'id' : GroupId,
+    'creator' : IDL.Principal,
+    'members' : IDL.Vec(IDL.Principal),
+    'name' : IDL.Text,
+    'pendingInvites' : IDL.Vec(IDL.Principal),
+  });
+  const GroupMessage = IDL.Record({
+    'content' : IDL.Text,
+    'sender' : IDL.Principal,
+    'groupId' : GroupId,
+    'timestamp' : IDL.Int,
   });
   const ConversationId = IDL.Nat;
-  const Id = IDL.Nat;
   const Message = IDL.Record({
     'id' : Id,
     'content' : IDL.Text,
@@ -109,38 +345,128 @@ export const idlFactory = ({ IDL }) => {
     'conversationId' : ConversationId,
     'timestamp' : IDL.Int,
   });
+  const PublicUserProfile = IDL.Record({
+    'bio' : IDL.Text,
+    'username' : Username,
+    'displayName' : IDL.Text,
+    'privacy' : ProfilePrivacy,
+    'avatar' : IDL.Opt(IDL.Vec(IDL.Nat8)),
+  });
   const UserSearchResult = IDL.Record({
     'principal' : IDL.Principal,
-    'profile' : UserProfile,
+    'profile' : PublicUserProfile,
   });
   
   return IDL.Service({
+    '_caffeineStorageBlobIsLive' : IDL.Func(
+        [IDL.Vec(IDL.Nat8)],
+        [IDL.Bool],
+        ['query'],
+      ),
+    '_caffeineStorageBlobsToDelete' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Vec(IDL.Nat8))],
+        ['query'],
+      ),
+    '_caffeineStorageConfirmBlobDeletion' : IDL.Func(
+        [IDL.Vec(IDL.Vec(IDL.Nat8))],
+        [],
+        [],
+      ),
+    '_caffeineStorageCreateCertificate' : IDL.Func(
+        [IDL.Text],
+        [_CaffeineStorageCreateCertificateResult],
+        [],
+      ),
+    '_caffeineStorageRefillCashier' : IDL.Func(
+        [IDL.Opt(_CaffeineStorageRefillInformation)],
+        [_CaffeineStorageRefillResult],
+        [],
+      ),
+    '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+    'acceptCall' : IDL.Func([CallId], [], []),
+    'acceptGroupInvite' : IDL.Func([GroupId], [], []),
+    'addComment' : IDL.Func([PostId, IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'authenticate' : IDL.Func([], [], []),
-    'createPost' : IDL.Func([IDL.Text, IDL.Vec(ImageAssetUrl)], [PostId], []),
+    'blockUser' : IDL.Func([IDL.Principal], [], []),
+    'clearCommentsFromPost' : IDL.Func([PostId], [], []),
+    'createGroup' : IDL.Func([IDL.Text], [GroupId], []),
+    'createPost' : IDL.Func(
+        [IDL.Text, IDL.Vec(MediaAsset), ContentType],
+        [PostId],
+        [],
+      ),
+    'declineCall' : IDL.Func([CallId], [], []),
+    'declineGroupInvite' : IDL.Func([GroupId], [], []),
+    'deletePost' : IDL.Func([PostId], [], []),
+    'endLiveStream' : IDL.Func([Id], [], []),
     'followUser' : IDL.Func([UserId], [], []),
+    'getActiveLiveStreams' : IDL.Func([], [IDL.Vec(LiveStream)], ['query']),
+    'getAllMovies' : IDL.Func([], [IDL.Vec(Movie)], ['query']),
+    'getBlockedUsers' : IDL.Func([], [IDL.Vec(IDL.Principal)], ['query']),
+    'getCall_status' : IDL.Func([CallId], [IDL.Opt(CallStatus)], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getFeed' : IDL.Func([], [IDL.Vec(Post)], ['query']),
+    'getGroupInvites' : IDL.Func([], [IDL.Vec(Group)], ['query']),
+    'getGroupMessages' : IDL.Func(
+        [GroupId],
+        [IDL.Vec(GroupMessage)],
+        ['query'],
+      ),
     'getMessages' : IDL.Func([ConversationId], [IDL.Vec(Message)], ['query']),
+    'getMovie' : IDL.Func([Id], [IDL.Opt(Movie)], ['query']),
+    'getMyGroups' : IDL.Func([], [IDL.Vec(Group)], ['query']),
+    'getOnlineUsers' : IDL.Func([], [IDL.Vec(PublicUserProfile)], ['query']),
+    'getPublicUserProfile' : IDL.Func(
+        [UserId],
+        [IDL.Opt(PublicUserProfile)],
+        ['query'],
+      ),
+    'getSavedPosts' : IDL.Func([], [IDL.Vec(Post)], ['query']),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],
         ['query'],
       ),
+    'initializeTimers' : IDL.Func([], [], []),
+    'initiateCall' : IDL.Func([UserId], [CallId], []),
+    'inviteToGroup' : IDL.Func([GroupId, IDL.Principal], [], []),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'joinLiveStream' : IDL.Func([Id], [], []),
+    'likeLiveStream' : IDL.Func([Id], [], []),
+    'likeMovie' : IDL.Func([Id], [], []),
+    'likePost' : IDL.Func([PostId], [], []),
     'listConversations' : IDL.Func([], [IDL.Vec(ConversationId)], ['query']),
+    'removeComment' : IDL.Func([PostId, Id], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'savePost' : IDL.Func([PostId], [], []),
     'searchUsers' : IDL.Func(
         [IDL.Text],
         [IDL.Vec(UserSearchResult)],
         ['query'],
       ),
+    'sendGroupMessage' : IDL.Func([GroupId, IDL.Text], [], []),
     'sendMessage' : IDL.Func([ConversationId, IDL.Text], [], []),
-    'signUp' : IDL.Func([Username, IDL.Text], [], []),
+    'setOnlineStatus' : IDL.Func([IDL.Bool], [], []),
+    'setProfilePrivacyLevel' : IDL.Func([ProfilePrivacy], [], []),
+    'signUp' : IDL.Func([Username, IDL.Text, ProfilePrivacy], [], []),
     'startConversation' : IDL.Func([UserId], [ConversationId], []),
+    'startLiveStream' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [Id], []),
+    'unblockUser' : IDL.Func([IDL.Principal], [], []),
     'unfollowUser' : IDL.Func([UserId], [], []),
+    'unlikeMovie' : IDL.Func([Id], [], []),
+    'unlikePost' : IDL.Func([PostId], [], []),
+    'unsavePost' : IDL.Func([PostId], [], []),
+    'uploadMovie' : IDL.Func(
+        [IDL.Text, IDL.Text, ExternalBlob, ExternalBlob],
+        [Id],
+        [],
+      ),
+    'uploadStory' : IDL.Func([MediaAsset], [], []),
+    'viewStory' : IDL.Func([Id], [IDL.Opt(MediaAsset)], []),
   });
 };
 

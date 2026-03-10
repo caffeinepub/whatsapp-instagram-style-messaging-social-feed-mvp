@@ -1,13 +1,22 @@
-import { useListConversations, useGetConversationDetails } from '../hooks/useQueries';
-import { Card, CardContent } from '@/components/ui/card';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import LoadingState from '../components/states/LoadingState';
-import ErrorState from '../components/states/ErrorState';
-import EmptyState from '../components/states/EmptyState';
-import { useNavigate } from '@tanstack/react-router';
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Card, CardContent } from "@/components/ui/card";
+import { useNavigate } from "@tanstack/react-router";
+import EmptyState from "../components/states/EmptyState";
+import ErrorState from "../components/states/ErrorState";
+import LoadingState from "../components/states/LoadingState";
+import {
+  useGetConversationDetails,
+  useListConversations,
+} from "../hooks/useQueries";
 
 export default function MessagesPage() {
-  const { data: conversationIds, isLoading, isError, error, refetch } = useListConversations();
+  const {
+    data: conversationIds,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useListConversations();
 
   if (isLoading) {
     return <LoadingState message="Loading conversations..." />;
@@ -17,7 +26,11 @@ export default function MessagesPage() {
     return (
       <div className="p-4 md:p-6">
         <ErrorState
-          message={error instanceof Error ? error.message : 'Failed to load conversations'}
+          message={
+            error instanceof Error
+              ? error.message
+              : "Failed to load conversations"
+          }
           onRetry={refetch}
         />
       </div>
@@ -41,7 +54,10 @@ export default function MessagesPage() {
       <h1 className="text-2xl font-bold">Messages</h1>
       <div className="space-y-2">
         {conversationIds.map((conversationId) => (
-          <ConversationItem key={conversationId.toString()} conversationId={conversationId} />
+          <ConversationItem
+            key={conversationId.toString()}
+            conversationId={conversationId}
+          />
         ))}
       </div>
     </div>
@@ -53,9 +69,9 @@ function ConversationItem({ conversationId }: { conversationId: bigint }) {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate({ 
-      to: '/messages/$conversationId', 
-      params: { conversationId: conversationId.toString() } 
+    navigate({
+      to: "/messages/$conversationId",
+      params: { conversationId: conversationId.toString() },
     });
   };
 
@@ -77,7 +93,10 @@ function ConversationItem({ conversationId }: { conversationId: bigint }) {
   }
 
   return (
-    <Card className="cursor-pointer transition-colors hover:bg-accent" onClick={handleClick}>
+    <Card
+      className="cursor-pointer transition-colors hover:bg-accent"
+      onClick={handleClick}
+    >
       <CardContent className="p-4">
         <div className="flex items-center gap-3">
           <Avatar>

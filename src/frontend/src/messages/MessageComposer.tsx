@@ -1,34 +1,36 @@
-import { useState } from 'react';
-import { useSendMessage } from '../hooks/useQueries';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Send, Loader2 } from 'lucide-react';
-import { validateMessageContent } from '../validation/validators';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Loader2, Send } from "lucide-react";
+import { useState } from "react";
+import { useSendMessage } from "../hooks/useQueries";
+import { validateMessageContent } from "../validation/validators";
 
 interface MessageComposerProps {
   conversationId: bigint;
 }
 
-export default function MessageComposer({ conversationId }: MessageComposerProps) {
-  const [content, setContent] = useState('');
-  const [error, setError] = useState('');
+export default function MessageComposer({
+  conversationId,
+}: MessageComposerProps) {
+  const [content, setContent] = useState("");
+  const [error, setError] = useState("");
   const sendMessageMutation = useSendMessage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const validationError = validateMessageContent(content);
     if (validationError) {
       setError(validationError);
       return;
     }
 
-    setError('');
+    setError("");
     try {
       await sendMessageMutation.mutateAsync({ conversationId, content });
-      setContent('');
+      setContent("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send message');
+      setError(err instanceof Error ? err.message : "Failed to send message");
     }
   };
 

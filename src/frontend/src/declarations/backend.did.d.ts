@@ -10,9 +10,47 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export type CallId = bigint;
+export type CallStatus = { 'pending' : null } |
+  { 'accepted' : null } |
+  { 'declined' : null };
+export interface Comment {
+  'commentId' : Id,
+  'authorId' : UserId,
+  'text' : string,
+  'timestamp' : bigint,
+}
+export type ContentType = { 'post' : null } |
+  { 'reel' : null };
 export type ConversationId = bigint;
+export type ExternalBlob = Uint8Array;
+export interface Group {
+  'id' : GroupId,
+  'creator' : Principal,
+  'members' : Array<Principal>,
+  'name' : string,
+  'pendingInvites' : Array<Principal>,
+}
+export type GroupId = bigint;
+export interface GroupMessage {
+  'content' : string,
+  'sender' : Principal,
+  'groupId' : GroupId,
+  'timestamp' : bigint,
+}
 export type Id = bigint;
-export type ImageAssetUrl = string;
+export interface LiveStream {
+  'id' : Id,
+  'title' : string,
+  'active' : boolean,
+  'description' : string,
+  'author' : UserId,
+  'likes' : Array<UserId>,
+  'viewers' : Array<UserId>,
+  'timestamp' : bigint,
+  'streamUrl' : string,
+}
+export interface MediaAsset { 'url' : string, 'isDataUrl' : boolean }
 export interface Message {
   'id' : Id,
   'content' : string,
@@ -21,92 +59,144 @@ export interface Message {
   'conversationId' : ConversationId,
   'timestamp' : bigint,
 }
+export interface Movie {
+  'id' : Id,
+  'title' : string,
+  'thumbnail' : ExternalBlob,
+  'description' : string,
+  'videoFile' : ExternalBlob,
+  'likes' : Array<UserId>,
+  'timestamp' : bigint,
+  'uploader' : UserId,
+  'comments' : Array<Comment>,
+}
 export interface Post {
-  'id' : bigint,
+  'id' : Id,
+  'media' : Array<MediaAsset>,
+  'contentType' : ContentType,
   'author' : UserId,
+  'likes' : Array<UserId>,
   'timestamp' : bigint,
   'caption' : string,
-  'images' : Array<ImageAssetUrl>,
+  'comments' : Array<Comment>,
 }
 export type PostId = bigint;
-export type UserId = Principal;
-export interface UserProfile {
+export type ProfilePrivacy = { 'profilePrivate' : null } |
+  { 'profilePublic' : null };
+export interface PublicUserProfile {
   'bio' : string,
   'username' : Username,
   'displayName' : string,
+  'privacy' : ProfilePrivacy,
+  'avatar' : [] | [Uint8Array],
+}
+export type UserId = Principal;
+export interface UserProfile {
+  'bio' : string,
+  'blockedUsers' : Array<UserId>,
+  'username' : Username,
+  'displayName' : string,
+  'savedPosts' : Array<PostId>,
+  'privacy' : ProfilePrivacy,
   'followers' : Array<UserId>,
   'following' : Array<UserId>,
   'avatar' : [] | [Uint8Array],
+  'online' : boolean,
 }
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
 export interface UserSearchResult {
   'principal' : Principal,
-  'profile' : UserProfile,
+  'profile' : PublicUserProfile,
 }
 export type Username = string;
+export interface _CaffeineStorageCreateCertificateResult {
+  'method' : string,
+  'blob_hash' : string,
+}
+export interface _CaffeineStorageRefillInformation {
+  'proposed_top_up_amount' : [] | [bigint],
+}
+export interface _CaffeineStorageRefillResult {
+  'success' : [] | [boolean],
+  'topped_up_amount' : [] | [bigint],
+}
 export interface _SERVICE {
+  '_caffeineStorageBlobIsLive' : ActorMethod<[Uint8Array], boolean>,
+  '_caffeineStorageBlobsToDelete' : ActorMethod<[], Array<Uint8Array>>,
+  '_caffeineStorageConfirmBlobDeletion' : ActorMethod<
+    [Array<Uint8Array>],
+    undefined
+  >,
+  '_caffeineStorageCreateCertificate' : ActorMethod<
+    [string],
+    _CaffeineStorageCreateCertificateResult
+  >,
+  '_caffeineStorageRefillCashier' : ActorMethod<
+    [[] | [_CaffeineStorageRefillInformation]],
+    _CaffeineStorageRefillResult
+  >,
+  '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
+  'acceptCall' : ActorMethod<[CallId], undefined>,
+  'acceptGroupInvite' : ActorMethod<[GroupId], undefined>,
+  'addComment' : ActorMethod<[PostId, string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
-  /**
-   * / Handles Internet Identity authentication and session management (requires user role)
-   */
   'authenticate' : ActorMethod<[], undefined>,
-  /**
-   * / Creates a new post with up to 10 images (requires user role)
-   */
-  'createPost' : ActorMethod<[string, Array<ImageAssetUrl>], PostId>,
-  /**
-   * / Follows another user (requires user role)
-   */
+  'blockUser' : ActorMethod<[Principal], undefined>,
+  'clearCommentsFromPost' : ActorMethod<[PostId], undefined>,
+  'createGroup' : ActorMethod<[string], GroupId>,
+  'createPost' : ActorMethod<[string, Array<MediaAsset>, ContentType], PostId>,
+  'declineCall' : ActorMethod<[CallId], undefined>,
+  'declineGroupInvite' : ActorMethod<[GroupId], undefined>,
+  'deletePost' : ActorMethod<[PostId], undefined>,
+  'endLiveStream' : ActorMethod<[Id], undefined>,
   'followUser' : ActorMethod<[UserId], undefined>,
-  /**
-   * / Get caller's user profile (required by frontend)
-   */
+  'getActiveLiveStreams' : ActorMethod<[], Array<LiveStream>>,
+  'getAllMovies' : ActorMethod<[], Array<Movie>>,
+  'getBlockedUsers' : ActorMethod<[], Array<Principal>>,
+  'getCall_status' : ActorMethod<[CallId], [] | [CallStatus]>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
-  /**
-   * / Retrieves a user's feed with posts from users they follow (requires user role)
-   */
   'getFeed' : ActorMethod<[], Array<Post>>,
-  /**
-   * / Gets all messages for a conversation (requires user role and participation)
-   */
+  'getGroupInvites' : ActorMethod<[], Array<Group>>,
+  'getGroupMessages' : ActorMethod<[GroupId], Array<GroupMessage>>,
   'getMessages' : ActorMethod<[ConversationId], Array<Message>>,
-  /**
-   * / Get any user's profile (own profile or admin can view any)
-   */
+  'getMovie' : ActorMethod<[Id], [] | [Movie]>,
+  'getMyGroups' : ActorMethod<[], Array<Group>>,
+  'getOnlineUsers' : ActorMethod<[], Array<PublicUserProfile>>,
+  'getPublicUserProfile' : ActorMethod<[UserId], [] | [PublicUserProfile]>,
+  'getSavedPosts' : ActorMethod<[], Array<Post>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'initializeTimers' : ActorMethod<[], undefined>,
+  'initiateCall' : ActorMethod<[UserId], CallId>,
+  'inviteToGroup' : ActorMethod<[GroupId, Principal], undefined>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
-  /**
-   * / Lists all conversations for the caller (requires user role)
-   */
+  'joinLiveStream' : ActorMethod<[Id], undefined>,
+  'likeLiveStream' : ActorMethod<[Id], undefined>,
+  'likeMovie' : ActorMethod<[Id], undefined>,
+  'likePost' : ActorMethod<[PostId], undefined>,
   'listConversations' : ActorMethod<[], Array<ConversationId>>,
-  /**
-   * / Save caller's user profile (required by frontend)
-   */
+  'removeComment' : ActorMethod<[PostId, Id], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
-  /**
-   * / Search for users by username (requires user role)
-   */
+  'savePost' : ActorMethod<[PostId], undefined>,
   'searchUsers' : ActorMethod<[string], Array<UserSearchResult>>,
-  /**
-   * / Sends a message in a conversation (requires user role and participation)
-   */
+  'sendGroupMessage' : ActorMethod<[GroupId, string], undefined>,
   'sendMessage' : ActorMethod<[ConversationId, string], undefined>,
-  /**
-   * / User signup and onboarding flow (accessible to guests to create accounts)
-   */
-  'signUp' : ActorMethod<[Username, string], undefined>,
-  /**
-   * / Starts a new conversation with another user (requires user role)
-   */
+  'setOnlineStatus' : ActorMethod<[boolean], undefined>,
+  'setProfilePrivacyLevel' : ActorMethod<[ProfilePrivacy], undefined>,
+  'signUp' : ActorMethod<[Username, string, ProfilePrivacy], undefined>,
   'startConversation' : ActorMethod<[UserId], ConversationId>,
-  /**
-   * / Unfollows another user (requires user role)
-   */
+  'startLiveStream' : ActorMethod<[string, string, string], Id>,
+  'unblockUser' : ActorMethod<[Principal], undefined>,
   'unfollowUser' : ActorMethod<[UserId], undefined>,
+  'unlikeMovie' : ActorMethod<[Id], undefined>,
+  'unlikePost' : ActorMethod<[PostId], undefined>,
+  'unsavePost' : ActorMethod<[PostId], undefined>,
+  'uploadMovie' : ActorMethod<[string, string, ExternalBlob, ExternalBlob], Id>,
+  'uploadStory' : ActorMethod<[MediaAsset], undefined>,
+  'viewStory' : ActorMethod<[Id], [] | [MediaAsset]>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

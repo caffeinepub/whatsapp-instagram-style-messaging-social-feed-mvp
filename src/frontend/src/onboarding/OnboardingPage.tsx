@@ -1,25 +1,36 @@
-import { useState } from 'react';
-import { useSignUp } from '../hooks/useQueries';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, AlertCircle } from 'lucide-react';
-import { validateUsername, validateDisplayName } from '../validation/validators';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { AlertCircle, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { ProfilePrivacy } from "../backend";
+import { useSignUp } from "../hooks/useQueries";
+import {
+  validateDisplayName,
+  validateUsername,
+} from "../validation/validators";
 
 export default function OnboardingPage() {
-  const [username, setUsername] = useState('');
-  const [displayName, setDisplayName] = useState('');
-  const [errors, setErrors] = useState<{ username?: string; displayName?: string }>({});
-  
+  const [username, setUsername] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [privacy, setPrivacy] = useState<ProfilePrivacy>(
+    ProfilePrivacy.profilePublic,
+  );
+  const [errors, setErrors] = useState<{
+    username?: string;
+    displayName?: string;
+  }>({});
+
   const signUpMutation = useSignUp();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const usernameError = validateUsername(username);
     const displayNameError = validateDisplayName(displayName);
-    
+
     if (usernameError || displayNameError) {
       setErrors({
         username: usernameError,
@@ -27,9 +38,9 @@ export default function OnboardingPage() {
       });
       return;
     }
-    
+
     setErrors({});
-    signUpMutation.mutate({ username, displayName });
+    signUpMutation.mutate({ username, displayName, privacy });
   };
 
   return (
@@ -43,9 +54,9 @@ export default function OnboardingPage() {
                 Let's set up your profile to get started
               </p>
             </div>
-            <img 
-              src="/assets/generated/onboarding-illustration.dim_1200x800.png" 
-              alt="Welcome" 
+            <img
+              src="/assets/generated/onboarding-illustration.dim_1200x800.png"
+              alt="Welcome"
               className="hidden w-full rounded-2xl object-cover md:block"
             />
           </div>
@@ -60,10 +71,12 @@ export default function OnboardingPage() {
                   placeholder="John Doe"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className={errors.displayName ? 'border-destructive' : ''}
+                  className={errors.displayName ? "border-destructive" : ""}
                 />
                 {errors.displayName && (
-                  <p className="text-sm text-destructive">{errors.displayName}</p>
+                  <p className="text-sm text-destructive">
+                    {errors.displayName}
+                  </p>
                 )}
               </div>
 
@@ -75,11 +88,47 @@ export default function OnboardingPage() {
                   placeholder="johndoe"
                   value={username}
                   onChange={(e) => setUsername(e.target.value.toLowerCase())}
-                  className={errors.username ? 'border-destructive' : ''}
+                  className={errors.username ? "border-destructive" : ""}
                 />
                 {errors.username && (
                   <p className="text-sm text-destructive">{errors.username}</p>
                 )}
+              </div>
+
+              <div className="space-y-3">
+                <Label>Profile Privacy</Label>
+                <RadioGroup
+                  value={privacy}
+                  onValueChange={(value) => setPrivacy(value as ProfilePrivacy)}
+                  className="space-y-2"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem
+                      value={ProfilePrivacy.profilePublic}
+                      id="public"
+                    />
+                    <Label
+                      htmlFor="public"
+                      className="font-normal cursor-pointer"
+                    >
+                      <span className="font-medium">Public</span> - Anyone can
+                      find and view your profile
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem
+                      value={ProfilePrivacy.profilePrivate}
+                      id="private"
+                    />
+                    <Label
+                      htmlFor="private"
+                      className="font-normal cursor-pointer"
+                    >
+                      <span className="font-medium">Private</span> - Only people
+                      you follow can see your profile
+                    </Label>
+                  </div>
+                </RadioGroup>
               </div>
 
               {signUpMutation.isError && (
@@ -88,7 +137,7 @@ export default function OnboardingPage() {
                   <AlertDescription>
                     {signUpMutation.error instanceof Error
                       ? signUpMutation.error.message
-                      : 'Failed to create account. Please try again.'}
+                      : "Failed to create account. Please try again."}
                   </AlertDescription>
                 </Alert>
               )}
@@ -105,7 +154,7 @@ export default function OnboardingPage() {
                     Creating account...
                   </>
                 ) : (
-                  'Get Started'
+                  "Get Started"
                 )}
               </Button>
             </form>
